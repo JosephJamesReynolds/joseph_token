@@ -65,8 +65,6 @@ describe('Token', () => {
 				expect(args.from).to.equal(deployer.address)
 				expect(args.to).to.equal(receiver.address)
 				expect(args.value).to.equal(amount)
-
-
 			})
 		})
 
@@ -88,17 +86,30 @@ describe('Token', () => {
 
 			beforeEach(async () => {
 				amount = tokens(100)
-				transaction = await token.connect(deployer).approve(receiver.address, amount)
+				transaction = await token.connect(deployer).approve(exchange.address, amount)
 				result = await transaction.wait()
+			})
 
 			describe('Success', () => {
 				it('allocates an allowance for delegated token spending', async () => {
-					expect(await token.allowace(deployer.address, exchange.address))to.equal(amount)
+					expect(await token.allowance(deployer.address, exchange.address)).to.equal(amount)
 				})
+				it('emits an Approval event', async () => {
+					const event = result.events[0]
+					expect(event.event).to.equal('Approval')
+
+					const args = event.args
+					expect(args.owner).to.equal(deployer.address)
+					expect(args.spender).to.equal(exchange.address)
+					expect(args.value).to.equal(amount)
+				})
+
 			})
 
 		describe('Failure', () => {
-
+			it('rejects invalid spenders', async () => {
+				await expect(token.connect(deployer).approve('0x0000000000000000000000000000000000000000', amount)).to.be.reverted
+			})
 		})	
 	})
 })
