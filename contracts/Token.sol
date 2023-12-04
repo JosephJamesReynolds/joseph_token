@@ -38,6 +38,9 @@ contract Token {
 
 		emit Transfer(msg.sender, _to, _value);
 
-		return true;
+		return true;	
 	}
+
+	function approve(address _to, uint256 _value) public returns (bool success)
+
 }
